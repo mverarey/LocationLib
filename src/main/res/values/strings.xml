@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">LocationLib</string>
+    <string name="direccion">Dirección</string>
+    <string name="num_externo">Núm. Externo</string>
+    <string name="colonia">Colonia</string>
+    <string name="num_interno">Núm. Interno</string>
+    <string name="instrucciones_editor">Ingrese la información que corresponda:</string>
+    <string name="precision">Precisión</string>
+    <string name="longitud">Longitud</string>
+    <string name="municipio">Municipio</string>
+    <string name="ciudad">Ciudad</string>
+    <string name="estado">Estado</string>
+    <string name="cp">CP</string>
+    <string name="latitud">Latitud</string>
+    <string name="formateada">Formateada</string>
+    <string name="btnGuardar">Guardar</string>
+    <string name="title_activity_mapa">Mapa</string>
+
+    <string name="google_maps_key">AIzaSyAn-zUPccGvJagmji5U6ynb6Zangrx_WsM</string>
+</resources>
