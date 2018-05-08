@@ -117,7 +117,7 @@ public class EditorActivity extends AppCompatActivity implements OnMapReadyCallb
 
         mapa = googleMap;
         LatLng ubicacion = new LatLng(direccion.latitud, direccion.longitud);
-        marker = googleMap.addMarker(new MarkerOptions().position(ubicacion).title("Ubicación detectada"));
+        marker = googleMap.addMarker(new MarkerOptions().position(ubicacion).title(getResources().getString(R.string.ubicacion_detectada) ));
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubicacion, 17.0f));
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
     }

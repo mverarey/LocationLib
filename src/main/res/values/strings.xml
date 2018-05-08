@@ -15,6 +15,13 @@
     <string name="formateada">Formateada</string>
     <string name="btnGuardar">Guardar</string>
     <string name="title_activity_mapa">Mapa</string>
-
+    <string name="app_requiere_permiso">¡Esta aplicación requiere el permiso de acceso a su ubicación!</string>
     <string name="google_maps_key">AIzaSyAn-zUPccGvJagmji5U6ynb6Zangrx_WsM</string>
+    <string name="ubicacion_no_encontrada">¡No se ha podido determinar su ubicación actual!</string>
+    <string name="permiso_ubicacion_rechazado">¡Debe permitir el uso de su ubicación!</string>
+    <string name="conexion_no_disponible">Conexión no disponible</string>
+    <string name="guardar_actual">¿Desea guardar su ubicación actual?</string>
+    <string name="sin_conexion">Sin conexión</string>
+    <string name="error_por_permisos_o_conexion">¡Permisos no concedidos o conexión a los servidores de ubicación no esta disponible!</string>
+    <string name="ubicacion_detectada">Ubicación detectada</string>
 </resources>

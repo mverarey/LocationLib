@@ -78,7 +78,7 @@ public class UbicacionActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_ACCESS_FINE_LOCATION);
         }
         if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getApplicationContext(), "¡Esta aplicación requiere el permiso de acceso a su ubicación!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.app_requiere_permiso), Toast.LENGTH_LONG).show();
             finish();
         }
 
@@ -173,12 +173,12 @@ public class UbicacionActivity extends AppCompatActivity
                 }
 
             } else {
-                Toast.makeText(getApplicationContext(), "¡No se ha podido determinar su ubicación actual!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.ubicacion_no_encontrada), Toast.LENGTH_LONG).show();
                 finish();
             }
 
         } else {
-            Toast.makeText(getApplicationContext(), "¡Debe permitir el uso de su ubicación!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.permiso_ubicacion_rechazado), Toast.LENGTH_LONG).show();
             finish();
         }
 
@@ -214,15 +214,15 @@ public class UbicacionActivity extends AppCompatActivity
         } else {
             builder = new AlertDialog.Builder(this);
         }
-        builder.setTitle("Conexión no disponible")
-                .setMessage("¿Desea guardar su ubicación actual?")
+        builder.setTitle( getResources().getString(R.string.conexion_no_disponible))
+                .setMessage(getResources().getString(R.string.guardar_actual))
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        /*
+
                         if(mLastLocation != null){
 
                             Direccion direccion = new Direccion("SIN CONEXION", "", "", "",
-                                    "", "", "", "", "Sin Conexión", (float)mLastLocation.getLatitude(),
+                                    "", "", "", "", getResources().getString(R.string.sin_conexion), (float)mLastLocation.getLatitude(),
                                     (float)mLastLocation.getLongitude(), mLastLocation.getAccuracy());
                             Intent data = new Intent();
                             data.putExtra("direccion", direccion.toJson() );
@@ -230,11 +230,11 @@ public class UbicacionActivity extends AppCompatActivity
                             finish();
 
                         }else {
-                        */
+
                             LocationListener mlocListener = new DS_LocationListener();
                             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                                 finish();
-                                Toast.makeText(getApplicationContext(), "¡Permisos no concedidos o conexión a los servidores de ubicación no esta disponible!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.error_por_permisos_o_conexion), Toast.LENGTH_LONG).show();
                             }
                             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                             Criteria criteria = new Criteria();
@@ -243,7 +243,7 @@ public class UbicacionActivity extends AppCompatActivity
                             provider = locationManager.getBestProvider(criteria, true);
                             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
 
-                        // }
+                        }
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -307,7 +307,7 @@ public class UbicacionActivity extends AppCompatActivity
             Log.d("TAG", "Starting..");
 
             Direccion direccion = new Direccion("SIN CONEXION", "", "", "",
-                    "", "", "", "", "Sin Conexión", (float)loc.getLatitude(),
+                    "", "", "", "", getResources().getString(R.string.sin_conexion), (float)loc.getLatitude(),
                     (float)loc.getLongitude(), loc.getAccuracy());
             Intent data = new Intent();
             data.putExtra("direccion", direccion.toJson() );
