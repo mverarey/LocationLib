@@ -4,14 +4,14 @@ Download
 --------
 ### Gradle:
 ```groovy
-compile 'com.depotserver.android:locationlib:1.0.0'
+compile 'com.depotserver.android:locationlib:1.1'
 ```
 ### Maven:
 ```xml
 <dependency>
  <groupId>com.depotserver.android</groupId>
  <artifactId>locationlib</artifactId>
- <version>1.0.0</version>
+ <version>1.1</version>
  <type>pom</type>
 </dependency>
 ```
