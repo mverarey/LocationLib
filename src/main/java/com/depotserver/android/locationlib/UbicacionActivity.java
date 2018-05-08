@@ -1,9 +1,18 @@
 package com.depotserver.android.locationlib;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -43,6 +52,7 @@ public class UbicacionActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private UbicacionAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private LocationManager locationManager;
 
     private List<Direccion> direcciones;
 
@@ -55,6 +65,8 @@ public class UbicacionActivity extends AppCompatActivity
     private RecyclerView placePicker;
     private LinearLayoutManager placePickerManager;
     private RecyclerView.Adapter placePickerAdapter;
+    private String provider;
+    private Location mLastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +104,8 @@ public class UbicacionActivity extends AppCompatActivity
             public void onItemOkClick(Direccion item) {
                 // Toast.makeText(getBaseContext(), "Objeto seleccionado", Toast.LENGTH_LONG).show();
                 Intent data = new Intent();
-                data.putExtra("direccion", item.toJson() );
-                setResult(RESULT_OK,data);
+                data.putExtra("direccion", item.toJson());
+                setResult(RESULT_OK, data);
                 finish();
             }
 
@@ -113,7 +125,7 @@ public class UbicacionActivity extends AppCompatActivity
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
             // Makes a Google API request for the user's last known location
-            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
             if (mLastLocation != null) {
 
@@ -128,7 +140,7 @@ public class UbicacionActivity extends AppCompatActivity
                             .build();
 
                     LocationService location = retrofit.create(LocationService.class);
-                    Call<GoogleMapsGeoCoder> stpCall = location.snapToPlace( userLL, userLLAcc, GOOGLE_API_KEY );
+                    Call<GoogleMapsGeoCoder> stpCall = location.snapToPlace(userLL, userLLAcc, GOOGLE_API_KEY);
 
                     stpCall.enqueue(new Callback<GoogleMapsGeoCoder>() {
                         @Override
@@ -138,8 +150,8 @@ public class UbicacionActivity extends AppCompatActivity
 
                             direcciones.clear();
                             List<Result> opciones = fjson.getResults();
-                            for (int i = 0; i < opciones.size(); i++){
-                                direcciones.add( new Direccion(opciones.get(i)));
+                            for (int i = 0; i < opciones.size(); i++) {
+                                direcciones.add(new Direccion(opciones.get(i)));
                             }
                             mAdapter.notifyDataSetChanged();
                             progress.setVisibility(View.GONE);
@@ -147,13 +159,15 @@ public class UbicacionActivity extends AppCompatActivity
 
                         @Override
                         public void onFailure(Call<GoogleMapsGeoCoder> call, Throwable t) {
-                            Toast.makeText(getApplicationContext(), "No se ha obtenido respuesta del servidor!", Toast.LENGTH_LONG).show();
-                            finish();
+
+                            opcionLocal();
+                            //Toast.makeText(getApplicationContext(), "No se ha obtenido respuesta del servidor!", Toast.LENGTH_LONG).show();
+                            //finish();
                         }
 
                     });
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Error " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                     finish();
                 }
@@ -172,8 +186,7 @@ public class UbicacionActivity extends AppCompatActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(getApplicationContext(), "¡Conexión a los servidores de ubicación no esta disponible!", Toast.LENGTH_LONG).show();
-        finish();
+        opcionLocal();
     }
 
     @Override
@@ -193,6 +206,54 @@ public class UbicacionActivity extends AppCompatActivity
     @Override
     public void onConnectionSuspended(int i) {}
 
+    private void opcionLocal(){
+
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
+        builder.setTitle("Conexión no disponible")
+                .setMessage("¿Desea guardar su ubicación actual?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        /*
+                        if(mLastLocation != null){
+
+                            Direccion direccion = new Direccion("SIN CONEXION", "", "", "",
+                                    "", "", "", "", "Sin Conexión", (float)mLastLocation.getLatitude(),
+                                    (float)mLastLocation.getLongitude(), mLastLocation.getAccuracy());
+                            Intent data = new Intent();
+                            data.putExtra("direccion", direccion.toJson() );
+                            setResult(RESULT_OK,data);
+                            finish();
+
+                        }else {
+                        */
+                            LocationListener mlocListener = new DS_LocationListener();
+                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                finish();
+                                Toast.makeText(getApplicationContext(), "¡Permisos no concedidos o conexión a los servidores de ubicación no esta disponible!", Toast.LENGTH_LONG).show();
+                            }
+                            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                            Criteria criteria = new Criteria();
+                            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+                            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                            provider = locationManager.getBestProvider(criteria, true);
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
+                        // }
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
 
     private void initializeData() {
 
@@ -230,6 +291,46 @@ public class UbicacionActivity extends AppCompatActivity
                 setResult(RESULT_OK,data);
                 finish();
             }
+        }
+    }
+
+    public class DS_LocationListener implements LocationListener {
+
+        @Override
+        public void onLocationChanged(Location loc) {
+            loc.getLatitude();
+            loc.getLongitude();
+            //String Text = "My current location is: " + "Latitude = "
+            //        + loc.getLatitude() + "Longitude = " + loc.getLongitude();
+            //Toast.makeText( getApplicationContext(), Text, Toast.LENGTH_SHORT)
+            //        .show();
+            Log.d("TAG", "Starting..");
+
+            Direccion direccion = new Direccion("SIN CONEXION", "", "", "",
+                    "", "", "", "", "Sin Conexión", (float)loc.getLatitude(),
+                    (float)loc.getLongitude(), loc.getAccuracy());
+            Intent data = new Intent();
+            data.putExtra("direccion", direccion.toJson() );
+            setResult(RESULT_OK,data);
+            locationManager.removeUpdates(this);
+            finish();
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            Toast.makeText( getApplicationContext(), "Gps Disabled",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            Toast.makeText( getApplicationContext(), "Gps Enabled",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
         }
     }
 }
